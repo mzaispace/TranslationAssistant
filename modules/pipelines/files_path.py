@@ -28,7 +28,7 @@ class FilesPathPipelines:
         """ 系统根目录 """
         if root_path is None:
             root_path = get_root_path()
-        root_dir_name = "minghe_agent"
+        root_dir_name = "translation-assistant"
         if  str(root_path).endswith(root_dir_name):
             return root_path
         else:
@@ -82,19 +82,6 @@ class FilesPathPipelines:
         return _file_path
 
 
-    def get_deepspeed_config_path(self, file_name):
-        """获取工具agent映射文件路径"""
-        base_mappings_path = os.path.join(self.root_path,"modules","configs","deepspeed_config")
-        os.makedirs(base_mappings_path,exist_ok=True)
-
-        _file_path = os.path.join(
-            base_mappings_path,
-            file_name
-        )
-        # if not os.path.exists(_file_path):
-        #     raise Exception(f"文件路径:{_file_path}不存在")
-        return _file_path
-
 
     def get_llamafactory_cli_config_path(self, file_name):
         """获取工具agent映射文件路径"""
@@ -108,10 +95,6 @@ class FilesPathPipelines:
         # if not os.path.exists(_file_path):
         #     raise Exception(f"文件路径:{_file_path}不存在")
         return _file_path
-
-
-
-
 
 
     def get_agent_base_config(self, config_file_name = "base_config.yaml"):
@@ -132,11 +115,6 @@ class FilesPathPipelines:
         if not os.path.exists(train_model_path):
             raise Exception(f"模型路径:{train_model_path}不存在")
         return train_model_path
-
-    def set_train_model_output_path(self, model_name):
-        """ 设置训练模型的写入路径 """
-        train_model_output_path = os.path.join(self.train_model_base_path,model_name)
-        return train_model_output_path
 
 
 
