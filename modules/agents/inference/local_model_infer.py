@@ -3,8 +3,6 @@ from transformers import AutoModelForCausalLM, AutoTokenizer,TextIteratorStreame
 import torch
 import gc
 
-from threading import Thread
-
 
 
 class LocalModelChat:
@@ -230,6 +228,7 @@ if __name__ == "__main__":
 
     # 1. 加载训练好的模型
     local_client = LocalModelChat()
+    # local_client = LocalModelChat(base_model_name="Qwen2.5-14B-Instruct")
 
 
     # 2. 定义系统提示（必须与训练数据一致）

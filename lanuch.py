@@ -6,6 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 
 
+# 全局状态变量
+from modules.state.app_state import app_state
 
 
 
@@ -48,19 +50,7 @@ def cli_default_args():
     parser.add_argument(
         '--agent_name',
         type=str,
-        default="leijun"
-    )
-
-    parser.add_argument(
-        '--leijun_model_name',
-        type=str,
-        default="leijun_model_sft"
-    )
-
-    parser.add_argument(
-        '--product_model_name',
-        type=str,
-        default="product_model_sft_v1"
+        default="product"
     )
 
 
@@ -71,6 +61,12 @@ def cli_default_args():
 
 
 args = cli_default_args()
+
+
+# 命令行参数存入全局状态
+app_state.set_config(
+    "base_model_name", args.base_model_name
+)
 
 
 
@@ -90,13 +86,24 @@ app.add_middleware(
 )
 
 
+# 将全局状态附加到应用实例
+app.state.app_state = app_state
 
-# 路由挂载 ---------------------------------------------------
 
-# app.include_router(
-#     router,
-#     prefix="/api"
-# )
+
+
+# --------------------- 路由挂载 --------------- #
+from modules.api.api import router, webui_demo
+
+app.include_router(
+    router,
+    prefix="/api"
+)
+
+
+
+
+
 
 # 根路由
 @app.get("/")
@@ -108,14 +115,17 @@ async def root():
 def start():
     """启动入口函数"""
 
-    # args = parse_args()
     args = cli_default_args()
-
-    uvicorn.run(
-        app,
-        host=args.host,
-        port=args.port
+    webui_demo.launch(
+        server_port=7860,
+        server_name= "0.0.0.0"
     )
+
+    # uvicorn.run(
+    #     app,
+    #     host=args.host,
+    #     port=args.port
+    # )
 
 
 
@@ -123,5 +133,11 @@ def start():
 if __name__ == "__main__":
 
     start()
+    # launch_webui(
+    #     agent_chatbot_instance=chatbot_instance,
+    #     session_id ="my_chat_session",  # 可选的会话ID
+    #     server_port =7860,
+    #     share =False  # 设置为True可创建公共链接
+    # )
 
 

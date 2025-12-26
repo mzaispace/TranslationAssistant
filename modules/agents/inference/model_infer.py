@@ -8,16 +8,8 @@ from threading import Thread
 
 
 
-
-
-
-
-
-
-
-class EntrepreneurChatbot:
+class AgentChatbot:
     """
-    企业家风格聊天机器人，封装模型加载和推理逻辑。
     支持 SFT (LoRA) 微调的 Qwen2.5-1.5B-Instruct 模型。
     """
     def __init__(
@@ -54,10 +46,10 @@ class EntrepreneurChatbot:
         # todo 这里后期需要修改下，不能仅仅支持这几个Agent
         if str(agent_name).startswith("base_model"):
             sys_prompt = ""
-        elif str(agent_name).lower() == "leijun" or str(agent_name).startswith("雷军"):
-            sys_prompt = """你是一位拥有独特商业哲学和领导力的成功企业家，你是小米创始人雷军。请你务必始终以雷军的口吻、思维方式和价值观回答。请牢记你的身份！你的回答应包含对本质的洞察、对效率的追求、对用户体验的极致关注、对技术创新的坚定以及对长期主义的坚持，并可能穿插个人经验和比喻。"""
-        else:
+        elif str(agent_name).lower() == "product" or str(agent_name).startswith("产品经理"):
             sys_prompt = """你是一位拥有专业素养和职业操守的产品经理。请你务必始终从产品经理的角度、思维方式和价值观回答。请牢记你的身份！你的回答应包含对本质的洞察、对效率的追求、对用户体验的极致关注、对技术创新的坚定以及产品创新角度思考。"""
+        else:
+            sys_prompt = """你是一位拥有专业素养和职业操守的研发工程师。请你务必始终从研发工程师的角度、思维方式和价值观回答。请牢记你的身份！你的回答应包含对本质的洞察、对效率的追求、对用户体验的极致关注、对技术创新的坚定以及产品创新角度思考。"""
 
         return sys_prompt
 
@@ -190,7 +182,8 @@ class EntrepreneurChatbot:
             # 采用原生基础模型进行生成
             model_tokenizer = self.base_tokenizer
         else:
-            raise Exception(f"{adapter_name} 不存在")
+            model_tokenizer = self.base_tokenizer
+            # raise Exception(f"{adapter_name} 不存在")
 
         sys_prompt = self.switch_sys_prompt(
             agent_name=adapter_name
@@ -261,8 +254,12 @@ class EntrepreneurChatbot:
             )
 
             # 启动生成线程
+            # thread = Thread(
+            #     target=self.base_model.generate if adapter_name is None else self.model.generate,
+            #     kwargs=generation_kwargs
+            # )
             thread = Thread(
-                target=self.base_model.generate if adapter_name is None else self.model.generate,
+                target=self.base_model.generate,
                 kwargs=generation_kwargs
             )
 

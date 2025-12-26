@@ -4,8 +4,8 @@
 
 # --------- 基础模型设置 ----------------- #
 base_llm:
-  model_name: "Qwen/Qwen2.5-14B-Instruct"
+  model_name: "Qwen/Qwen2.5-7B-Instruct"
   model_path: "checkpoints"
-  model_file_name: "Qwen2.5-14B-Instruct"
+  model_file_name: "Qwen2.5-7B-Instruct"
 
 
