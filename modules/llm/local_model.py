@@ -1,8 +1,7 @@
-from modules.pipelines.files_path import FilesPathPipelines
-from transformers import AutoModelForCausalLM, AutoTokenizer,TextIteratorStreamer
+from modules.pipelines.files_pipeline import FilesPathPipelines
+from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 import gc
-
 
 
 class LocalModelChat:
@@ -228,7 +227,6 @@ if __name__ == "__main__":
 
     # 1. 加载训练好的模型
     local_client = LocalModelChat()
-    # local_client = LocalModelChat(base_model_name="Qwen2.5-14B-Instruct")
 
 
     # 2. 定义系统提示（必须与训练数据一致）
@@ -256,3 +254,4 @@ if __name__ == "__main__":
     print("雷军: ", end="", flush=True)
     for token in response:
         print(token, end="", flush=True)
+

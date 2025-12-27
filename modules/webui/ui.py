@@ -53,38 +53,7 @@ class MockModel:
         yield f"【模拟回复】\n当前身份：{sys_prompt[:20]}...\n输入：{user_query}"
 
 
-
-class OpenAIModel:
-    def __init__(self, api_key, base_url, model):
-        from openai import OpenAI
-        self.client = OpenAI(api_key=api_key, base_url=base_url)
-        self.model = model
-
-    def generate_response(self, user_query, history, sys_prompt, stream=True):
-        messages = [{"role": "system", "content": sys_prompt}]
-        for h in history:
-            messages.append(h)
-        messages.append({"role": "user", "content": user_query})
-
-        try:
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=messages,
-                stream=stream
-            )
-
-            if stream:
-                for chunk in response:
-                    # 关键修复：先判断 choices 是否存在且不为空
-                    if hasattr(chunk, 'choices') and len(chunk.choices) > 0:
-                        content = chunk.choices[0].delta.content
-                        if content:  # 只有内容不为 None 时才输出
-                            yield content
-            else:
-                yield response.choices[0].message.content
-        except Exception as e:
-            yield f"❌ 在线引擎调用失败: {str(e)}"
-
+from modules.llm.online_model import OpenAIModel
 
 
 # ============ 3. 初始化与全局变量 ============
@@ -111,7 +80,7 @@ async def init_engines():
         msg_local = "✅ 模拟引擎加载"
     else:
         try:
-            from modules.agents.inference.local_model_infer import LocalModelChat
+            from modules.llm.local_model import LocalModelChat
             local_engine = LocalModelChat(base_model_name=CONFIG["local_model_name"], gpu_index=CONFIG["gpu_index"])
             msg_local = "✅ 本地引擎就绪"
         except Exception as e:
@@ -126,7 +95,7 @@ async def init_engines():
 async def start_chat():
     cl.user_session.set("history", [])
     cl.user_session.set("role", "to_dev")
-    cl.user_session.set("engine_type", "local") # 默认使用本地
+    cl.user_session.set("engine_type", "openai") # 默认在线
 
     # 设置侧边栏：角色切换 + 模型切换
     await cl.ChatSettings([

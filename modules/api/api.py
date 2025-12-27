@@ -29,7 +29,7 @@ def get_app_state(request: Request):
 
 # ---------------- 全局变量 ---------------------------- #
 # 实例化llm, todo 兜底策略，用在线模型进行兜底
-from modules.llm.openai import OpenAIModel
+from modules.llm.online_model import OpenAIModel
 
 llm_client = OpenAIModel(model="gpt-4o")
 

@@ -162,5 +162,11 @@ datasets/*
 dataset/*
 entrepreneur_model_sft
 modules/agents/checkpoints/*
+modules/checkpoints/*
+modules/webui/.chainlit
+modules/webui/chainlit.md
+
+
+
 
 

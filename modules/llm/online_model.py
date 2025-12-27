@@ -1,7 +1,7 @@
 
 class OpenAIModel:
     def __init__(self, api_key, base_url, model):
-        from openai import OpenAI
+        from openai  import OpenAI
         self.client = OpenAI(api_key=api_key, base_url=base_url)
         self.model = model
 
