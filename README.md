@@ -14,7 +14,7 @@
 ### 主界面
 ![主界面](./examples/images/main-ui.png)
 
-### 主界面
+### 推理引擎和agent切换
 ![引擎和agent切换](./examples/images/switch.png)
 
 ### 双向翻译演示
