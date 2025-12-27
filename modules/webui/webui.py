@@ -126,7 +126,9 @@ def process_message(user_input, agent_type, stream_option):
 
             # 开始收集流式响应
             full_response = ""
+
             for chunk in stream_response:
+
                 if chunk:
                     full_response += chunk
                     # 更新显示（包含部分响应）
