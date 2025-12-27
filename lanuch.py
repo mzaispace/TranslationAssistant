@@ -1,6 +1,5 @@
 import argparse
 
-import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -8,11 +7,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # 全局状态变量
 from modules.state.app_state import app_state
-
-
-
-
-
 
 
 
@@ -128,16 +122,8 @@ def start():
     # )
 
 
-
-
 if __name__ == "__main__":
 
     start()
-    # launch_webui(
-    #     agent_chatbot_instance=chatbot_instance,
-    #     session_id ="my_chat_session",  # 可选的会话ID
-    #     server_port =7860,
-    #     share =False  # 设置为True可创建公共链接
-    # )
 
 

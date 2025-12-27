@@ -1,16 +1,41 @@
 # TranslationAssistant
 
 
-## 主体板块核心在于两个构建两个agent：产品经理agent 和 研发程序员agent
+✨ **TranslationAssistant** 职能沟通翻译助手是一款专注于解决产品经理与研发工程师之间沟通障碍的智能翻译工具，通过双向语言转换帮助双方准确理解彼此的专业表述，降低沟通成本，提升协作效率。:
+🔌 **Multi-provider support**: 支持在线推理和本地推理模型 
+💰 **Token tracking**: Detailed usage metrics and cost tracking  
+⚡ **Flexible deployment**: Chainlit, FastAPI   
+
+## Quickstart
+```bash
+# 创建虚拟环境
+python3 -m venv venv 
+
+source  ./venv/bin/activate
+
+pip3 install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple 
 
 
-# agent 构建核心：垂类模型 + prompt
-    - 产品经理agent
-    - 研发程序员agent
+# 修改配置
+在根目录下将.env_template 修改为 .env
+在其中填写：
+在线模型：openai的key,base_url以及所使用模型等信息
+本地模型：模型名称 及模型路径, 默认本地模型放置与modules/checkpoints目录下
 
 
-# 推理板块可采用 构建的agent 和 online llm + prompt 进行综合推理
+# 启动服务
+python3 lanuch.py 
+
+```
+
+## Usage
 
 
+## Observability
+
+## Advanced Usage
 
 
+## License
+
+This project is licensed under the Apache 2.0 License.
