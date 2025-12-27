@@ -109,7 +109,6 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 *.pdf
-*.png
 
 *.json
 
