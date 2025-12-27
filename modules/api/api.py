@@ -29,9 +29,9 @@ def get_app_state(request: Request):
 
 # ---------------- 全局变量 ---------------------------- #
 # 实例化llm, todo 兜底策略，用在线模型进行兜底
-from modules.llm.openai import OpenaiProxyChat
+from modules.llm.openai import OpenAIModel
 
-llm_client = OpenaiProxyChat(model="gpt-4o")
+llm_client = OpenAIModel(model="gpt-4o")
 
 
 
@@ -43,9 +43,6 @@ chatbot_instance: Optional[AgentChatbot] = None
 
 
 base_model_name = app_state.get_config("base_model_name")
-
-
-from modules.webui.create_webui import launch_webui
 
 
 try:
