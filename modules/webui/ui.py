@@ -122,9 +122,24 @@ async def start_chat():
 async def send_welcome_card():
     """发送带有快捷操作的欢迎卡片"""
     actions = [
-        cl.Action(name="set_role_product", value="product", label="📊 切换为产品经理", description="侧重业务与用户"),
-        cl.Action(name="set_role_dev", value="dev", label="💻 切换为研发工程师", description="侧重技术与实现"),
-        cl.Action(name="clear_history", value="clear", label="🗑️ 清空对话", description="开始新话题")
+        cl.Action(
+            name="set_role_product",
+            payload={"value": "product"},  # 【修复点】必须包含 payload 字典
+            label="📊 切换为产品经理",
+            description="侧重业务与用户"
+        ),
+        cl.Action(
+            name="set_role_dev",
+            payload={"value": "dev"},      # 【修复点】必须包含 payload 字典
+            label="💻 切换为研发工程师",
+            description="侧重技术与实现"
+        ),
+        cl.Action(
+            name="clear_history",
+            payload={"value": "clear"},    # 【修复点】必须包含 payload 字典
+            label="🗑️ 清空对话",
+            description="开始新话题"
+        )
     ]
 
     content = f"""
@@ -135,6 +150,9 @@ async def send_welcome_card():
 **当前默认角色：** {ROLE_MAP['product']['icon']} {ROLE_MAP['product']['name']}
 """
     await cl.Message(content=content, actions=actions).send()
+
+
+
 
 
 @cl.on_settings_update
