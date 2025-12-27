@@ -10,42 +10,48 @@ CONFIG = {
     "use_mock_model": False,  # 【调试用】如果为 True，将不加载真实模型，仅测试UI
 }
 
-# 方便 UI 显示名称和内部 ID 互转
-ROLE_NAME_TO_KEY = {
-    "产品经理": "product",
-    "研发工程师": "dev"
-}
+
+ROLE_NAME_TO_KEY = {"产品视角 -> 译给开发": "to_dev", "开发视角 -> 译给产品": "to_prod"}
+
+dev_prompt = """你是一位资深架构师。你的任务是将产品经理的【业务描述】翻译成【技术实现方案】。
+输出必须包含以下模块：
+1. **技术建模**：推荐算法建议（如协同过滤、向量检索）、数据表结构简述。
+2. **数据链路**：数据来源（埋点、离线/实时流处理）、处理逻辑。
+3. **非功能需求**：QPS要求、延迟控制、缓存策略。
+4. **开发预估**：核心模块、潜在技术难点及工作量评估。
+请保持口径专业、严谨。"""
+
+prod_prompt = """你是一位资深产品专家。你的任务是将研发的【技术实现/优化】翻译成【产品业务价值】。
+输出必须包含以下模块：
+1. **用户体验**：响应变快了多少？操作路径是否缩短？
+2. **商业价值**：支持多大的业务增长（并发容量）？服务器成本降低多少？
+3. **市场竞争力**：此项改进如何领先于竞品？
+4. **下一步行动**：基于此技术提升，产品层面可以做哪些新的尝试？
+请保持口径易懂、结果导向。"""
 
 
-# 角色详细配置
+
 ROLE_MAP = {
-    "product": {
-        "name": "产品经理",
-        "icon": "📊",
-        "description": "关注用户需求、市场分析、功能规划",
-        "prompt": """你是一位资深产品经理 (PM)。你的核心思维模式是：
-1. 用户视角：痛点是什么？场景是什么？
-2. 商业价值：ROI如何？市场空间多大？
-3. 优先级：MVP是什么？迭代计划如何？
-请用专业的PM术语（如PRD、用户画像、转化率等）回答，结构清晰。"""
+    "to_dev": {
+        "name": "研发技术视角",
+        "icon": "⚙️",
+        "description": "将业务需求转化为技术规格",
+        "prompt": dev_prompt
     },
-    "dev": {
-        "name": "研发工程师",
-        "icon": "💻",
-        "description": "关注技术实现、架构设计、代码质量",
-        "prompt": """你是一位资深研发工程师 (Dev)。你的核心思维模式是：
-1. 可行性：技术方案是否成熟？
-2. 稳定性：高并发怎么处理？异常怎么兜底？
-3. 扩展性：架构是否解耦？代码是否整洁？
-请用专业的技术术语（如微服务、设计模式、时间复杂度等）回答，提供代码片段。"""
+    "to_prod": {
+        "name": "产品业务视角",
+        "icon": "📈",
+        "description": "将技术方案转化为商业价值",
+        "prompt": prod_prompt
     }
 }
+
+
 
 # ============ 模拟模型（用于无GPU环境测试UI） ============
 class MockModel:
     def generate_response(self, user_query, history, sys_prompt, stream=True):
         yield f"【模拟回复】\n收到问题：{user_query}\n\n当前角色设定：\n{sys_prompt[:50]}...\n\n(这是一个测试回复，请在代码中设置 use_mock_model=False 以加载真实模型)"
-
 
 
 
@@ -77,33 +83,33 @@ async def init_model():
     except Exception as e:
         return f"❌ 模型加载失败: {str(e)}"
 
-# ============ Chainlit 事件处理 ============
+
 
 @cl.on_chat_start
 async def start_chat():
-    """会话初始化"""
-
-    # 1. 初始化 Session 变量
     cl.user_session.set("history", [])
-    cl.user_session.set("role", "product")
+    cl.user_session.set("role", "to_dev") # 默认：转译给开发看
 
-    # 2. 设置 Chat Settings
-    # 【修正点】values 必须是列表，不能是字典
-    settings = await cl.ChatSettings(
-        [
-            Select(
-                id="role_select",
-                label="🎭 当前对话角色",
-                values=list(ROLE_NAME_TO_KEY.keys()), # 这里改为 ["产品经理", "研发工程师"]
-                initial_index=0,
-                description="切换后，AI将立即以新身份进行回答"
-            ),
-            Switch(
-                id="show_thinking",
-                label="💡 显示思考过程",
-                initial=True
-            ),
-        ]
+    # 设置侧边栏角色切换
+    await cl.ChatSettings([
+        Select(
+            id="role_select",
+            label="🔄 选择翻译方向",
+            values=list(ROLE_NAME_TO_KEY.keys()),
+            initial_index=0
+        )
+    ]).send()
+
+    # 欢迎语与快捷操作
+    actions = [
+        cl.Action(name="switch", payload={"v": "to_dev"}, label="📢 研发视角", description="业务 -> 技术"),
+        cl.Action(name="switch", payload={"v": "to_prod"}, label="💡 产品视角", description="技术 -> 业务"),
+    ]
+
+    await cl.Message(
+        content="""# 🚀 研发-产品 沟通翻译助手
+请在下方输入您的描述，我会为您翻译成对方能听懂的专业语言。""",
+        actions=actions
     ).send()
 
     # 3. 显示加载中
@@ -115,120 +121,52 @@ async def start_chat():
     loading_msg.content = status_text
     await loading_msg.update()
 
-    # 5. 发送欢迎卡片
-    await send_welcome_card()
-
-
-async def send_welcome_card():
-    """发送带有快捷操作的欢迎卡片"""
-    actions = [
-        cl.Action(
-            name="set_role_product",
-            payload={"value": "product"},  # 【修复点】必须包含 payload 字典
-            label="📊 切换为产品经理",
-            description="侧重业务与用户"
-        ),
-        cl.Action(
-            name="set_role_dev",
-            payload={"value": "dev"},      # 【修复点】必须包含 payload 字典
-            label="💻 切换为研发工程师",
-            description="侧重技术与实现"
-        ),
-        cl.Action(
-            name="clear_history",
-            payload={"value": "clear"},    # 【修复点】必须包含 payload 字典
-            label="🗑️ 清空对话",
-            description="开始新话题"
-        )
-    ]
-
-    content = f"""
-# 🤖 智能研发助手
-    
-欢迎使用！请选择下方的 **快捷按钮** 或使用 **输入框左侧的设置图标** 来切换角色。
-    
-**当前默认角色：** {ROLE_MAP['product']['icon']} {ROLE_MAP['product']['name']}
-"""
-    await cl.Message(content=content, actions=actions).send()
-
-
-
-
 
 @cl.on_settings_update
-async def setup_agent(settings):
-    """当用户在侧边栏修改设置时触发"""
-
-    # 监听角色切换
-    if "role_select" in settings:
-        selected_name = settings["role_select"] # 获取到的是 "产品经理"
-        # 【修正点】将中文名称转换回内部 key ("product")
-        new_role_key = ROLE_NAME_TO_KEY.get(selected_name)
-
-        if new_role_key:
-            await switch_role(new_role_key)
+async def on_settings_update(settings):
+    new_role_name = settings["role_select"]
+    new_role_key = ROLE_NAME_TO_KEY[new_role_name]
+    await switch_role(new_role_key)
 
 
+@cl.action_callback("switch")
+async def on_action_switch(action):
+    await switch_role(action.payload["v"])
 
-@cl.action_callback("set_role_product")
-async def on_action_product(action):
-    await switch_role("product")
-    # 可选：移除按钮以防止重复点击，或者保留
-    # await action.remove()
+
+async def switch_role(role_key):
+    cl.user_session.set("role", role_key)
+    role_info = ROLE_MAP[role_key]
+    await cl.Message(content=f"✅ 已切换至：**{role_info['name']}** ({role_info['description']})", author="系统").send()
+
+
 
 @cl.action_callback("set_role_dev")
 async def on_action_dev(action):
     await switch_role("dev")
+
 
 @cl.action_callback("clear_history")
 async def on_action_clear(action):
     cl.user_session.set("history", [])
     await cl.Message(content="🗑️ 记忆已清除，让我们重新开始。", author="System").send()
 
-async def switch_role(role_key):
-    """统一的角色切换逻辑"""
-    current_role = cl.user_session.get("role")
-    if current_role == role_key:
-        return # 角色未变，无需操作
-
-    target_role = ROLE_MAP.get(role_key)
-    if not target_role:
-        return
-
-    # 更新 Session
-    cl.user_session.set("role", role_key)
-
-    # 发送系统通知
-    msg = cl.Message(
-        content=f"**身份已切换** \n\n我现在是 **{target_role['icon']} {target_role['name']}**。\n_{target_role['description']}_",
-        author="System"
-    )
-    await msg.send()
-
-    # 这里可以根据需要，更新头像 (Avatar)
-    # 注意：Chainlit 的头像通常在 chainlit.md 或配置中静态定义，
-    # 但我们可以通过修改 msg.author 在发送消息时动态区分。
-
 
 @cl.on_message
 async def handle_message(message: cl.Message):
-    """核心对话逻辑"""
     global chat_model
 
     if not chat_model:
-        await cl.Message(content="❌ 模型未加载，请检查后台日志。", author="System").send()
+        await cl.Message(content="❌ 模型未加载，无法处理消息。", author="系统").send()
         return
 
     # 1. 获取当前状态
-    role_key = cl.user_session.get("role", "product")
+    role_key = cl.user_session.get("role", "to_dev")
     role_config = ROLE_MAP[role_key]
     history = cl.user_session.get("history", [])
 
     # 2. 准备 UI
-    # 使用动态 Author Name 来展示当前角色
-    author_name = f"{role_config['name']} AI"
-    # 也可以在这里设置特定的头像，如果配置了 public/avatars/
-
+    author_name = role_config["name"]
     msg = cl.Message(content="", author=author_name)
     await msg.send()
 
@@ -236,7 +174,11 @@ async def handle_message(message: cl.Message):
     sys_prompt = role_config["prompt"]
 
     try:
-        # 4. 生成回复
+        # 4. 生成回复 (流式)
+        # 增加一个翻译中的小提示前缀
+        prefix = f"**[{role_config['name']}转译中...]**\n\n"
+        await msg.stream_token(prefix)
+
         stream = chat_model.generate_response(
             user_query=message.content,
             history=history,
@@ -246,9 +188,10 @@ async def handle_message(message: cl.Message):
 
         full_response = ""
         for token in stream:
-            await msg.stream_token(token)
-            full_response += token
-            await asyncio.sleep(0.005) # 稍微平滑一点流式输出
+            if token:
+                await msg.stream_token(token)
+                full_response += token
+                await asyncio.sleep(0.005)
 
         await msg.update()
 
@@ -256,15 +199,15 @@ async def handle_message(message: cl.Message):
         history.append({"role": "user", "content": message.content})
         history.append({"role": "assistant", "content": full_response})
 
-        # 截断历史以防爆显存
-        if len(history) > CONFIG["max_history"]:
-            history = history[-CONFIG["max_history"]:]
+        # 限制上下文轮数
+        if len(history) > CONFIG["max_history"] * 2:
+            history = history[-(CONFIG["max_history"] * 2):]
 
         cl.user_session.set("history", history)
 
     except Exception as e:
-        await cl.Message(content=f"❌ 生成出错: {str(e)}", author="System").send()
-
+        error_info = f"❌ 翻译出错: {str(e)}"
+        await cl.Message(content=error_info, author="系统").send()
 
 
 
