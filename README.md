@@ -1,13 +1,37 @@
 # TranslationAssistant
 
 
-✨ **TranslationAssistant** 职能沟通翻译助手是一款专注于解决产品经理与研发工程师之间沟通障碍的智能翻译工具，通过双向语言转换帮助双方准确理解彼此的专业表述，降低沟通成本，提升协作效率。:
+✨ **TranslationAssistant** 职能沟通翻译助手是一款专注于解决产品经理与研发工程师之间沟通障碍的智能翻译工具，通过双向语言转换帮助双方准确理解彼此的专业表述，降低沟通成本，提升协作效率。
 
 🔌 **Multi-provider support**: 支持在线推理和本地推理模型 
 
 💰 **Token tracking**: Detailed usage metrics and cost tracking  
 
 ⚡ **Flexible deployment**: Chainlit, FastAPI   
+
+## 📸 产品截图
+
+### 主界面
+![主界面](./examples/images/main-ui.png)
+
+### 主界面
+![引擎和agent切换](./examples/images/switch.png)
+
+### 双向翻译演示
+<div align="center">
+  <table>
+    <tr>
+      <th>产品需求输入</th>
+      <th>技术方案输出</th>
+    </tr>
+    <tr>
+      <td><img src="./examples/images/product-input.png" width="95%"></td>
+      <td><img src="./examples/images/tech-output.png" width="95%"></td>
+    </tr>
+  </table>
+</div>
+
+
 
 ## Quickstart
 ```bash
