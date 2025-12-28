@@ -1,18 +1,18 @@
-from pydantic import BaseModel, Field
-from typing import List, Dict, Optional
+from pydantic import BaseModel
+from typing import List
 
 
 
 
 class HistoryMessageParams(BaseModel):
-    timestamp: str = ""        # 新增ID字段
+    timestamp: str = ""
     role: str = ''
     content: str = ''
 
 
 class ChatWithTranslationParams(BaseModel):
     engine_type: str = "openAI"
-    prompt: str =  ""       # agent编号
+    role: str = "to_product"
     user_question: str = ""     # 输入问题
     stream: bool = False  # 新增流式输出开关
-    history: List[HistoryMessageParams] = []  # 使用定义好的结构化模型
+    history: List[HistoryMessageParams] = []

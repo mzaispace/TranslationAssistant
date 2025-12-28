@@ -1,45 +1,16 @@
-import json, os
-from fastapi import APIRouter, Request
-# from modules.api.api_func import process_history
-
-
-from modules.api.api_params import (
-            ChatWithTranslationParams
-)
+from fastapi import APIRouter
+import json
+from modules.api.api_params import  ChatWithTranslationParams
 from fastapi.responses import StreamingResponse
-from dotenv import load_dotenv
 
 from modules.engine.engine_factory import engine_manager
 
+from modules.prompts.prompt_map import prod_prompt,dev_prompt
 
-load_dotenv()
 
 
 router = APIRouter()
 
-
-# # 依赖项：获取全局状态
-# def get_app_state(request: Request):
-#     return request.app.state.app_state
-
-
-# ---------------- 全局变量 ---------------------------- #
-# 实例化llm, todo 兜底策略，用在线模型进行兜底
-# from modules.llm.online_model import OpenAIModel
-# chatbot_instance = OpenAIModel(
-#     api_key=os.getenv("OPENAI_API_KEY"),
-#     base_url=os.getenv("OPENAI_BASE_URL"),
-#     model=os.getenv("OPENAI_MODEL", "gpt-4o")
-# )
-
-
-# ---------------- 接口参数格式 --------------------------- #
-
-
-# 可以在 Fastapi 启动时加载模型
-# chatbot_instance: Optional[AgentChatbot] = None
-
-base_model_name = os.getenv("LOCAL_MODEL_NAME", "Qwen2.5-7B-Instruct")
 
 
 
@@ -48,8 +19,7 @@ base_model_name = os.getenv("LOCAL_MODEL_NAME", "Qwen2.5-7B-Instruct")
 # =======================
 
 
-
-
+_all_roles = ["to_product","to_dev"]
 @router.post(
     "/chat_with_translation_agent",
     summary="与翻译分身进行对话"
@@ -63,33 +33,28 @@ async def chat_with_translation(
     """
 
     engine = engine_manager.local_engine  if event.engine_type == "local" else engine_manager.openai_engine
-    # if not chatbot_instance:
-    #     return {
-    #         "status_code": 500,
-    #         "msg": "failed",
-    #         "data": {},
-    #         "error": {
-    #             "msg": f"分身未加载完成"
-    #         },
-    #         "parameters": event.model_dump()
-    #     }
+
+    role = event.role
+
+    if role not in _all_roles :
+        return {
+            "status_code": 500,
+            "msg": "failed",
+            "data": {},
+            "error": {
+                "msg": f"role must be one of {_all_roles}, can't be {role}"
+            },
+            "parameters": event.model_dump()
+        }
+
+    # todo 后续可增加其他的角色
+    prompt = prod_prompt if event.role == "to_product" else  dev_prompt
 
     try:
 
-        prompt = event.prompt
         stream = event.stream
         history = list(event.history)
 
-        # if agent_name not in all_agents_name:
-        #     return {
-        #         "status_code": 500,
-        #         "msg": "failed",
-        #         "data": {},
-        #         "error": {
-        #             "msg": f"agent {agent_name} not exits, agent_name must be one of {all_agents_name}"
-        #         },
-        #         "parameters": event.model_dump()
-        #     }
 
         user_question = event.user_question
         # ==================== 流式响应处理 ====================

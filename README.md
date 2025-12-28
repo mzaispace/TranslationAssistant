@@ -20,8 +20,9 @@
 ### 🟢 基础体验优化 (进行中)
 - [x] **引擎单例化**：实现 FastAPI 与 Chainlit 共享同一模型实例，节省显存。
 - [x] **智能提示词设计**：引入场景识别逻辑，支持非法输入拦截。
-- [ ] **流式响应加速**：优化异步 `sleep` 策略，提升首字响应速度（TTFT）。
+- [x] **流式响应加速**：优化异步 `sleep` 策略，提升首字响应速度（TTFT）。
 - [ ] **对话持久化**：将历史记录存储至 SQLite，支持刷新页面后恢复对话。
+- [ ] **意图识别**：基于输入问题识别用户真实意图，并进行引导。
 
 ### 🟡 功能增强 (计划中)
 - [ ] **RAG 插件系统**：支持上传公司内部的《技术规范文档》，让技术方案更符合团队标准。
@@ -50,11 +51,11 @@
 ![引擎和agent切换](./examples/images/switch.png)
 
 
-### 产品输入
-![product](./examples/images/product_question.png)
+### to 产品 
+![product](./examples/images/to_prod.png)
 
-### 研发输入
-![product](./examples/images/dev_question.png)
+### to 研发
+![product](./examples/images/to_dev.png)
 
 
 ### 在线接口文档
