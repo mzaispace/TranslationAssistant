@@ -94,6 +94,17 @@
    - API Docs: http://127.0.0.1:7860/docs
 
 
+
+## example question
+
+测试示范问题
+
+- **question1**: 我们需要实现一个类似抖音的短视频信息流，支持千万级日活。
+- **question2**: 我们将数据库从 MySQL 迁移到了 TiDB，解决了长尾延迟问题。
+- **question3**: 如何做一个电商类的推荐系统项目。
+
+
+
 ## License
 
 This project is licensed under the Apache 2.0 License.
