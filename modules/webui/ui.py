@@ -1,26 +1,10 @@
-import os
 import chainlit as cl
 import asyncio
 from chainlit.input_widget import Select
-from dotenv import load_dotenv
+from modules.engine.engine_factory import engine_manager
 
-
-load_dotenv()
 
 ui_exe_file_path = __file__
-
-
-CONFIG = {
-    "local_model_name": os.getenv("LOCAL_MODEL_NAME", "Qwen2.5-7B-Instruct"),
-    "gpu_index": 0,
-    "max_history": 10,
-    "use_mock_model": False,
-    # --- 在线模型配置从环境变量读取 ---
-    "openai_api_key": os.getenv("OPENAI_API_KEY"),
-    "openai_base_url": os.getenv("OPENAI_BASE_URL"),
-    "openai_model": os.getenv("OPENAI_MODEL", "gpt-4o"),
-}
-
 
 
 ROLE_NAME_TO_KEY = {"产品视角 -> 译给开发": "to_dev", "开发视角 -> 译给产品": "to_prod"}
@@ -46,7 +30,6 @@ ROLE_MAP = {
 }
 
 
-from modules.engine.engine_factory import engine_manager
 
 
 # ============ ui 逻辑 ============ #
@@ -105,6 +88,8 @@ async def on_action_clear(action):
 
 @cl.on_message
 async def handle_message(message: cl.Message):
+
+    max_history = 10
     # 1. 获取当前状态
     role_key = cl.user_session.get("role", "to_dev")
     engine_type = cl.user_session.get("engine_type", "local")
@@ -128,6 +113,7 @@ async def handle_message(message: cl.Message):
     await msg.stream_token(prefix)
 
     try:
+        # todo 这里需要优化不同角色针对不同问题的提示词
         stream = engine.generate_response(
             user_query=message.content,
             history=history,
@@ -147,8 +133,8 @@ async def handle_message(message: cl.Message):
         # 5. 更新历史
         history.append({"role": "user", "content": message.content})
         history.append({"role": "assistant", "content": full_response})
-        if len(history) > CONFIG["max_history"] * 2:
-            history = history[-(CONFIG["max_history"] * 2):]
+        if len(history) > max_history * 2:
+            history = history[-(max_history * 2):]
         cl.user_session.set("history", history)
 
     except Exception as e:

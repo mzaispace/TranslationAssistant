@@ -8,10 +8,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-# --- 这里放入你之前的配置 CONFIG 和 Prompt 定义 ---
 CONFIG = {
     "local_model_name": os.getenv("LOCAL_MODEL_NAME", "Qwen2.5-7B-Instruct"),
-    "use_mock_model": False,
     "openai_api_key": os.getenv("OPENAI_API_KEY"),
     "openai_base_url": os.getenv("OPENAI_BASE_URL"),
     "openai_model": os.getenv("OPENAI_MODEL", "gpt-4o"),
@@ -42,11 +40,6 @@ class EngineManager:
             model=CONFIG["openai_model"]
         )
 
-        # 2. 初始化本地模型
-        # if CONFIG["use_mock_model"]:
-        #     from main import MockModel # 假设 MockModel 在此处
-        #     self.local_engine = MockModel()
-        # else:
         from modules.llm.local_model import LocalModelChat
         self.local_engine = LocalModelChat(
             base_model_name=CONFIG["local_model_name"]
