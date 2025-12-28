@@ -34,11 +34,31 @@ ROLE_MAP = {
 
 # ============ ui 逻辑 ============ #
 
+# 1. 在 start_chat 函数外部定义这个装饰器
+@cl.set_starters
+async def set_starters():
+    return [
+        cl.Starter(
+            label="业务转技术示例",
+            message="我们需要实现一个类似抖音的短视频信息流，支持千万级日活，包含点赞和评论功能。",
+        ),
+        cl.Starter(
+            label="技术转业务示例",
+            message="我们将数据库从 MySQL 迁移到了 TiDB，并引入了 Redis 缓存分片，解决了长尾延迟问题。",
+        ),
+        cl.Starter(
+            label="高并发场景",
+            message="抢购活动期间，如何应对瞬时 10W QPS 的下单请求？",
+        )
+    ]
+
+
 @cl.on_chat_start
 async def start_chat():
     cl.user_session.set("history", [])
     cl.user_session.set("role", "to_dev")
     cl.user_session.set("engine_type", "openai") # 默认在线
+
 
     # 设置侧边栏：角色切换 + 模型切换
     await cl.ChatSettings([
@@ -84,7 +104,19 @@ async def on_action_switch(action):
 @cl.action_callback("clear")
 async def on_action_clear(action):
     cl.user_session.set("history", [])
+
     await cl.Message(content="🗑️ 对话历史已清空", author="系统").send()
+
+@cl.action_callback("suggest")
+async def on_suggest_click(action):
+    question = action.payload.get(
+        "q"
+    )
+    # 模拟用户发送了这个问题
+    await cl.Message(content=question, author="User").send()
+    # 手动触发消息处理
+    await handle_message(cl.Message(content=question))
+
 
 @cl.on_message
 async def handle_message(message: cl.Message):
@@ -129,6 +161,34 @@ async def handle_message(message: cl.Message):
                 await asyncio.sleep(sleep_time)
 
         await msg.update()
+
+        # --- 新增：根据当前角色生成建议问题 ---
+        role_key = cl.user_session.get(
+            "role"
+        )
+
+        #todo 这里需要基于用户输入的问题来判断场景，然后再提供建议
+        suggestions = []
+        if role_key == "to_dev":
+            suggestions = [
+                "如何设计数据库表结构？", "需要用到哪些核心中间件？", "预估需要多少人天开发？"
+            ]
+        else:
+            suggestions = [
+                "对日活(DAU)会有什么影响？", "竞品是否有类似功能？", "可以节省多少服务器成本？"
+            ]
+
+        # 创建建议按钮
+        actions = [
+            cl.Action(name=
+                      "suggest", payload={"q": q}, label=f"❓ {q}"
+                      )
+            for q in
+            suggestions
+        ]
+
+        # 发送一条带建议的辅助消息
+        await cl.Message(content="**您可能还想了解：**",actions=actions).send()
 
         # 5. 更新历史
         history.append({"role": "user", "content": message.content})
