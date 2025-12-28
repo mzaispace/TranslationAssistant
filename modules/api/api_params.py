@@ -11,7 +11,7 @@ class HistoryMessageParams(BaseModel):
 
 
 class ChatWithTranslationParams(BaseModel):
-    agent_name: str =  ""       # agent编号
+    prompt: str =  ""       # agent编号
     user_question: str = ""     # 输入问题
     stream: bool = False  # 新增流式输出开关
     history: List[HistoryMessageParams] = []  # 使用定义好的结构化模型

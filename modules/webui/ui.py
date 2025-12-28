@@ -1,13 +1,13 @@
+import os
 import chainlit as cl
 import asyncio
 from chainlit.input_widget import Select
 from dotenv import load_dotenv
 
-import os
-
-# ============ 1. 配置区域 ============
 
 load_dotenv()
+
+ui_exe_file_path = __file__
 
 
 CONFIG = {
@@ -118,6 +118,7 @@ async def start_chat():
     status_msg.content = status_text
     await status_msg.update()
 
+
 @cl.on_settings_update
 async def on_settings_update(settings):
     # 处理角色切换
@@ -149,6 +150,8 @@ async def handle_message(message: cl.Message):
 
     # 2. 匹配引擎
     engine = local_engine if engine_type == "local" else openai_engine
+    sleep_time = 0.005 if engine_type == "local" else  0.01
+
     if not engine:
         await cl.Message(content="❌ 该引擎未就绪，请检查 API 配置。", author="系统").send()
         return
@@ -174,7 +177,7 @@ async def handle_message(message: cl.Message):
             if token:
                 await msg.stream_token(token)
                 full_response += token
-                await asyncio.sleep(0.005)
+                await asyncio.sleep(sleep_time)
 
         await msg.update()
 
@@ -190,5 +193,5 @@ async def handle_message(message: cl.Message):
 
 if __name__ == "__main__":
     from chainlit.cli import run_chainlit
-    run_chainlit(__file__)
+    run_chainlit(ui_exe_file_path)
 

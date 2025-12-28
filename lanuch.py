@@ -1,12 +1,19 @@
 import argparse
-
+import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 
-
 # 全局状态变量
 from modules.state.app_state import app_state
+
+import sys
+import os
+from chainlit.cli import run_chainlit
+
+from modules.webui.ui import ui_exe_file_path
+
+
 
 
 
@@ -80,14 +87,13 @@ app.add_middleware(
 )
 
 
-# 将全局状态附加到应用实例
-app.state.app_state = app_state
-
+# # 将全局状态附加到应用实例
+# app.state.app_state = app_state
 
 
 
 # --------------------- 路由挂载 --------------- #
-from modules.api.api import router, webui_demo
+from modules.api.api import router
 
 app.include_router(
     router,
@@ -106,24 +112,42 @@ async def root():
 
 
 
+def launch_webui(
+        server_host="0.0.0.0",
+        server_port="7860"
+
+):
+    # 优先从命令行获取端口，例如: python main.py 9000
+    port = sys.argv[1] if len(sys.argv) > 1 else server_port
+
+    # 设置 Chainlit 内部识别的端口变量
+    os.environ["CHAINLIT_PORT"] = port
+
+    # 启动
+    run_chainlit(ui_exe_file_path)
+
+
+
 def start():
     """启动入口函数"""
 
     args = cli_default_args()
-    webui_demo.launch(
-        server_port=7860,
-        server_name= "0.0.0.0"
+
+    # 启动ui
+    launch_webui()
+
+    # 启动api
+    uvicorn.run(
+        app,
+        host=args.host,
+        port=args.port
     )
-
-    # uvicorn.run(
-    #     app,
-    #     host=args.host,
-    #     port=args.port
-    # )
-
 
 if __name__ == "__main__":
 
     start()
+
+
+
 
 
