@@ -9,6 +9,11 @@
 
 ⚡ **Flexible deployment**: Chainlit, FastAPI   
 
+
+## 功能说明 
+
+
+
 ## 📸 产品截图
 
 ### 主界面
@@ -57,9 +62,16 @@ pip3 install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 # 启动服务
 python3 lanuch.py 
 
+# 后台运行
+nohup python3 lanuch.py   > output.log 2>&1 &
+
 ```
 
 ## Usage
+
+
+
+## todo
 
 
 ## Observability
