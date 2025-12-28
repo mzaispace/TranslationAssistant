@@ -8,7 +8,7 @@ ui_exe_file_path = __file__
 
 
 ROLE_NAME_TO_KEY = {"产品视角 -> 译给开发": "to_dev", "开发视角 -> 译给产品": "to_prod"}
-MODEL_OPTIONS = {"本地引擎": "local", "在线引擎 (OpenAI)": "openai"}
+MODEL_OPTIONS = {"在线引擎 (OpenAI)": "openai","本地引擎": "local" }
 
 dev_prompt = """你是一位资深架构师。你的任务是将产品经理的【业务描述】翻译成【技术实现方案】。
 输出必须包含以下模块：
@@ -60,7 +60,7 @@ async def start_chat():
     msg_online = "✅ 在线 OpenAI 引擎就绪"
     msg_local = "✅ 本地引擎就绪"
 
-    status_msg.content = f"{msg_online}  {msg_local}"
+    status_msg.content = f"{msg_online} | {msg_local}"
 
     await status_msg.update()
 

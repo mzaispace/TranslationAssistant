@@ -56,7 +56,7 @@ pip3 install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 在根目录下将.env_template 修改为 .env
 在其中填写：
 在线模型：openai的key,base_url以及所使用模型等信息
-本地模型：模型名称 及模型路径, 默认本地模型放置与modules/checkpoints目录下
+本地模型：模型名称 及模型路径, 默认本地模型放置于modules/checkpoints目录下
 
 
 # 启动服务
