@@ -42,20 +42,35 @@
 
 ---
 
-## 📸 产品截图
+## 📸 界面预览与转译案例
 
-### 主界面
-![主界面](./examples/images/main-ui.png)
+### 🖥️ 系统交互
+项目提供极简的 UI 交互，支持在侧边栏或对话流中实时切换推理引擎与 Agent 视角。
 
-### 推理引擎和agent切换
-![引擎和agent切换](./examples/images/switch.png)
+| 初始主界面 | 推理引擎与角色切换 |
+| :---: | :---: |
+| ![主界面](./examples/images/main-ui.png) | ![引擎和agent切换](./examples/images/switch.png) |
 
+---
 
-### to 产品 
-![product](./examples/images/to_prod.png)
+### 🧪 核心转译案例演示
+通过以下两个典型案例，展示 AI 如何在 **产品业务价值** 与 **底层技术架构** 之间进行深度逻辑转换。
 
-### to 研发
-![product](./examples/images/to_dev.png)
+#### 🔹 案例 1：业务需求下沉为技术方案
+> **输入：** 我们需要实现一个类似抖音的短视频信息流，支持千万级日活。
+
+| 📈 译给产品 (视角：业务价值) | ⚙️ 译给研发 (视角：技术实现) |
+| :---: | :---: |
+| ![product](./examples/images/to_prod.png) | ![dev](./examples/images/to_dev.png) |
+
+#### 🔹 案例 2：技术优化上升为商业语言
+> **输入：** 我们将数据库从 MySQL 迁移到了 TiDB，解决了长尾延迟问题。
+
+| 📈 译给产品 (视角：业务价值) | ⚙️ 译给研发 (视角：技术实现) |
+| :---: | :---: |
+| ![product_1](./examples/images/to_prod_2.png) | ![dev_1](./examples/images/to_dev_2.png) |
+
+---
 
 
 ### 在线接口文档
