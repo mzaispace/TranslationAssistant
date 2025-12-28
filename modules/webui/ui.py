@@ -45,51 +45,11 @@ ROLE_MAP = {
     "to_prod": {"name": "产品业务视角", "icon": "📈", "description": "技术->业务", "prompt": prod_prompt}
 }
 
-# ============ 2. 模型引擎类定义 ============
 
-# 模拟模型
-class MockModel:
-    def generate_response(self, user_query, history, sys_prompt, stream=True):
-        yield f"【模拟回复】\n当前身份：{sys_prompt[:20]}...\n输入：{user_query}"
+from modules.engine.engine_factory import engine_manager
 
 
-from modules.llm.online_model import OpenAIModel
-
-
-# ============ 3. 初始化与全局变量 ============
-local_engine = None
-openai_engine = None
-
-async def init_engines():
-    global local_engine, openai_engine
-
-    # 1. 初始化在线引擎
-    try:
-        openai_engine = OpenAIModel(
-            api_key=CONFIG["openai_api_key"],
-            base_url=CONFIG["openai_base_url"],
-            model=CONFIG["openai_model"]
-        )
-        msg_online = "✅ 在线 OpenAI 引擎就绪"
-    except Exception as e:
-        msg_online = f"❌ 在线引擎启动失败: {str(e)}"
-
-    # 2. 初始化本地引擎
-    if CONFIG["use_mock_model"]:
-        local_engine = MockModel()
-        msg_local = "✅ 模拟引擎加载"
-    else:
-        try:
-            from modules.llm.local_model import LocalModelChat
-            local_engine = LocalModelChat(base_model_name=CONFIG["local_model_name"], gpu_index=CONFIG["gpu_index"])
-            msg_local = "✅ 本地引擎就绪"
-        except Exception as e:
-            local_engine = MockModel()
-            msg_local = f"⚠️ 本地加载失败，降级为模拟: {str(e)}"
-
-    return f"{msg_local} | {msg_online}"
-
-# ============ 4. Chainlit 逻辑 ============
+# ============ ui 逻辑 ============ #
 
 @cl.on_chat_start
 async def start_chat():
@@ -112,10 +72,13 @@ async def start_chat():
     await cl.Message(content="# 🚀 研发-产品 翻译助手\n请在下方输入您的描述，或在侧边栏切换引擎。", actions=actions).send()
 
     # 初始化引擎
-    status_msg = cl.Message(content="🔄 正在预热 AI 引擎...", author="系统")
+    status_msg = cl.Message(content="🔄 正在初始化 AI 引擎...", author="系统")
     await status_msg.send()
-    status_text = await init_engines()
-    status_msg.content = status_text
+    msg_online = "✅ 在线 OpenAI 引擎就绪"
+    msg_local = "✅ 本地引擎就绪"
+
+    status_msg.content = f"{msg_online}  {msg_local}"
+
     await status_msg.update()
 
 
@@ -149,7 +112,7 @@ async def handle_message(message: cl.Message):
     history = cl.user_session.get("history", [])
 
     # 2. 匹配引擎
-    engine = local_engine if engine_type == "local" else openai_engine
+    engine = engine_manager.local_engine if engine_type == "local" else engine_manager.openai_engine
     sleep_time = 0.005 if engine_type == "local" else  0.01
 
     if not engine:

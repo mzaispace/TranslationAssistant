@@ -166,6 +166,8 @@ modules/agents/checkpoints/*
 modules/checkpoints/*
 modules/webui/.chainlit
 modules/webui/chainlit.md
+chainlit.md
+
 
 
 

@@ -5,6 +5,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from chainlit.utils import mount_chainlit
 from modules.webui.ui import ui_exe_file_path
 
+from contextlib import asynccontextmanager
+
+from modules.engine.engine_factory import engine_manager
+
+from fastapi import FastAPI
+
+
+
+# 实例化引擎
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # 整个进程生命周期内只运行这一次
+    await engine_manager.init_all()
+    yield
 
 
 
@@ -22,7 +36,7 @@ def cli_default_args():
     parser.add_argument(
         "--port",
         type=int,
-        default=7560,
+        default=7860,
         help="The port number to bind to."
     )
 
@@ -57,7 +71,8 @@ args = cli_default_args()
 app = FastAPI(
     title="研发-产品 翻译助手 ",
     description="产品与开发间的沟通神器",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 # CORS跨域配置

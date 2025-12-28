@@ -11,6 +11,7 @@ class HistoryMessageParams(BaseModel):
 
 
 class ChatWithTranslationParams(BaseModel):
+    engine_type: str = "openAI"
     prompt: str =  ""       # agent编号
     user_question: str = ""     # 输入问题
     stream: bool = False  # 新增流式输出开关

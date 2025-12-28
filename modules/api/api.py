@@ -9,6 +9,8 @@ from modules.api.api_params import (
 from fastapi.responses import StreamingResponse
 from dotenv import load_dotenv
 
+from modules.engine.engine_factory import engine_manager
+
 
 load_dotenv()
 
@@ -16,19 +18,19 @@ load_dotenv()
 router = APIRouter()
 
 
-# 依赖项：获取全局状态
-def get_app_state(request: Request):
-    return request.app.state.app_state
+# # 依赖项：获取全局状态
+# def get_app_state(request: Request):
+#     return request.app.state.app_state
 
 
 # ---------------- 全局变量 ---------------------------- #
 # 实例化llm, todo 兜底策略，用在线模型进行兜底
-from modules.llm.online_model import OpenAIModel
-chatbot_instance = OpenAIModel(
-    api_key=os.getenv("OPENAI_API_KEY"),
-    base_url=os.getenv("OPENAI_BASE_URL"),
-    model=os.getenv("OPENAI_MODEL", "gpt-4o")
-)
+# from modules.llm.online_model import OpenAIModel
+# chatbot_instance = OpenAIModel(
+#     api_key=os.getenv("OPENAI_API_KEY"),
+#     base_url=os.getenv("OPENAI_BASE_URL"),
+#     model=os.getenv("OPENAI_MODEL", "gpt-4o")
+# )
 
 
 # ---------------- 接口参数格式 --------------------------- #
@@ -59,16 +61,18 @@ async def chat_with_translation(
     与不同翻译agent进行对话。
     支持多轮对话，通过 `history` 参数传递对话历史。
     """
-    if not chatbot_instance:
-        return {
-            "status_code": 500,
-            "msg": "failed",
-            "data": {},
-            "error": {
-                "msg": f"分身未加载完成"
-            },
-            "parameters": event.model_dump()
-        }
+
+    engine = engine_manager.local_engine  if event.engine_type == "local" else engine_manager.openai_engine
+    # if not chatbot_instance:
+    #     return {
+    #         "status_code": 500,
+    #         "msg": "failed",
+    #         "data": {},
+    #         "error": {
+    #             "msg": f"分身未加载完成"
+    #         },
+    #         "parameters": event.model_dump()
+    #     }
 
     try:
 
@@ -91,7 +95,7 @@ async def chat_with_translation(
         # ==================== 流式响应处理 ====================
         if stream:
             # 获取真正的流式生成器
-            token_stream = chatbot_instance.generate_response(
+            token_stream = engine.generate_response(
                 user_query=user_question,
                 history=history,
                 sys_prompt=prompt,
@@ -164,7 +168,7 @@ async def chat_with_translation(
 
         else:
             # --------------- 非流式响应 ------------------- #
-            response = chatbot_instance.generate_response(
+            response = engine.generate_response(
                     user_query=user_question,
                     history=history,
                     sys_prompt=prompt,
