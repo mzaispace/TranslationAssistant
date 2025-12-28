@@ -82,6 +82,9 @@
    ```bash
    # 启动服务
    python3 lanuch.py 
+   
+   # 指定端口 
+   python3 lanuch.py  --port 7860
 
    # 后台运行
    nohup python3 lanuch.py   > output.log 2>&1 &
