@@ -22,19 +22,12 @@
 ### 推理引擎和agent切换
 ![引擎和agent切换](./examples/images/switch.png)
 
-### 双向翻译演示
-<div align="center">
-  <table>
-    <tr>
-      <th>产品需求输入</th>
-      <th>技术方案输出</th>
-    </tr>
-    <tr>
-      <td><img src="./examples/images/product-input.png" width="95%"></td>
-      <td><img src="./examples/images/tech-output.png" width="95%"></td>
-    </tr>
-  </table>
-</div>
+
+### 产品输入
+![product](./examples/images/product_question.png)
+
+### 研发输入
+![product](./examples/images/dev_question.png)
 
 
 ### 在线接口文档
