@@ -90,8 +90,8 @@
 2. **本地模型下载**:
    ```bash
    pip install -U huggingface_hub
-   # --local-dir 指定下载到当前目录下的文件夹中, 项目默认放置于moduels/checkpoints目录下,亦可在.env文件中指定模型文件夹名称
-   huggingface-cli download Qwen/Qwen2.5-7B-Instruct --local-dir ./moduels/checkpoints/Qwen2.5-7B-Instruct
+   # --local-dir 指定下载到当前目录下的文件夹中, 项目默认放置于modules/checkpoints目录下,亦可在.env文件中指定模型文件夹名称
+   huggingface-cli download Qwen/Qwen2.5-7B-Instruct --local-dir ./modules/checkpoints/Qwen2.5-7B-Instruct
 
 3. **启动服务**:
    ```bash
